@@ -1,0 +1,272 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CPCB Log Analyzer</title>
+    <!-- Bootstrap 3 -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Dropzone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.css">
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" rel="stylesheet">
+    <!-- App Styles -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+    <link rel="shortcut icon" href="assets/images/favicon.ico">
+</head>
+<body>
+    <!-- =========================================
+         LOADER
+    ========================================= -->
+    <div class="loader-overlay" id="loaderOverlay">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">
+            Parsing log transactions...
+        </div>
+    </div>
+    <!-- =========================================
+         DASHBOARD
+    ========================================= -->
+    <div class="dashboard">
+        <!-- =====================================
+             SIDEBAR
+        ====================================== -->
+        <aside class="sidebar">
+            <div class="brand-section">
+                <div class="brand-icon">
+                    <i class="fa fa-line-chart"></i>
+                </div>
+                <div class="brand-title">
+                    CPCB Log Analyzer
+                </div>
+                <div class="brand-subtitle">
+                    Upload and analyze API transaction logs
+                </div>
+            </div>
+            <div class="upload-card">
+                <form id="logDropzone" class="dropzone">
+                    <div class="dz-message">
+                        <div class="upload-main-icon">
+                            <i class="fa fa-cloud-upload"></i>
+                        </div>
+                        <div class="upload-heading">
+                            Upload Log Files
+                        </div>
+                        <div class="upload-text">
+                            Drag & drop enterprise log files
+                            or click to browse
+                        </div>
+                    </div>
+                </form>
+                <div class="parse-status">
+                    <div class="status-item">
+                        <span class="status-label">
+                            Uploaded Files
+                        </span>
+                        <span class="status-value" id="uploadedFileCount">
+                            0
+                        </span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">
+                            Total File Size
+                        </span>
+                        <span class="status-value" id="uploadedFileSize">
+                            0 KB
+                        </span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">
+                            Parse Status
+                        </span>
+                        <span class="status-value" id="parseStatus">
+                            Waiting
+                        </span>
+                    </div>
+                    <div class="parse-progress">
+                        <div class="parse-progress-bar" id="parseProgressBar">
+                        </div>
+                    </div>
+                </div>
+                <div class="sidebar-actions">
+                    <button class="btn-dashboard btn-primary-dashboard" id="parseLogsBtn">
+                        <i class="fa fa-play"></i>
+                        Parse Logs
+                    </button>
+                    <button class="btn-dashboard btn-secondary-dashboard" id="clearLogsBtn">
+                        <i class="fa fa-trash"></i>
+                        Clear
+                    </button>
+                </div>
+            </div>
+        </aside>
+        <!-- =====================================
+             MAIN CONTENT
+        ====================================== -->
+        <main class="main-content">
+            <!-- HEADER -->
+            <div class="top-header">
+                <div class="header-title">
+                    <h2>
+                        Log Monitoring Dashboard
+                    </h2>
+                    <p>
+                        Real-time API transaction analytics
+                    </p>
+                </div>
+                <div class="header-actions">
+                    <div class="date-time" id="currentDateTime">
+                    </div>
+                    <div class="header-search">
+                        <i class="fa fa-search"></i>
+                        <input type="text" class="form-control" id="globalSearch" placeholder="Search transactions...">
+                    </div>
+                    <button class="header-btn" id="refreshBtn">
+                        <i class="fa fa-refresh"></i>
+                    </button>
+                    <button class="header-btn" id="exportCsvBtn">
+                        <i class="fa fa-file-excel-o"></i>
+                        CSV
+                    </button>
+                </div>
+            </div>
+            <!-- STATS -->
+            <div class="stats-grid">
+                <div class="stats-card card-blue">
+                    <i class="fa fa-bullseye stats-icon"></i>
+                    <h3>Expected Requests</h3>
+                    <h1 id="expectedRequests">
+                        96
+                    </h1>
+                    <div class="trend">
+                        Fixed daily expected count
+                    </div>
+                </div>
+                <div class="stats-card card-green">
+                    <i class="fa fa-send stats-icon"></i>
+                    <h3>Actual Requests</h3>
+                    <h1 id="actualRequests">
+                        0
+                    </h1>
+                    <div class="trend">
+                        Parsed request transactions
+                    </div>
+                </div>
+                <div class="stats-card card-purple">
+                    <i class="fa fa-check-circle stats-icon"></i>
+                    <h3>Successful Requests</h3>
+                    <h1 id="successRequests">
+                        0
+                    </h1>
+                    <div class="trend">
+                        Successful API responses
+                    </div>
+                </div>
+                <div class="stats-card card-red">
+                    <i class="fa fa-times-circle stats-icon"></i>
+                    <h3>Failed Requests</h3>
+                    <h1 id="failedRequests">
+                        0
+                    </h1>
+                    <div class="trend">
+                        Failed API responses
+                    </div>
+                </div>
+                <div class="stats-card card-blue">
+                    <i class="fa fa-exclamation-circle stats-icon"></i>
+                    <h3>Missing Requests</h3>
+                    <h1 id="missingRequests">
+                        96
+                    </h1>
+                    <div class="trend">
+                        Missing expected transactions
+                    </div>
+                </div>
+            </div>
+            <!-- FILTERS -->
+            <div class="filters-panel">
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="All">
+                        All
+                    </button>
+                    <button class="filter-tab" data-filter="Success">
+                        Success
+                    </button>
+                    <button class="filter-tab" data-filter="Failed">
+                        Failed
+                    </button>
+                </div>
+                <div class="filter-controls">
+                    <input type="text" id="jsonSearch" placeholder="Search JSON content">
+                    <select id="timestampFilter">
+                        <option value="">
+                            All Timestamps
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <!-- TABLE -->
+            <div class="table-panel">
+                <div class="table-header">
+                    <h3>
+                        Parsed Transactions
+                    </h3>
+                    <div>
+                        <strong id="visibleRecordsCount">
+                            0
+                        </strong>
+                        Records
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th width="140">
+                                    Status
+                                </th>
+                                <th width="38%">
+                                    Request Payload
+                                </th>
+                                <th width="38%">
+                                    Response Payload
+                                </th>
+                                <th width="180">
+                                    Timestamp
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsTableBody">
+                            <tr>
+                                <td colspan="4">
+                                    <div class="empty-state">
+                                        <i class="fa fa-cloud-upload empty-state-icon">
+                                        </i>
+                                        Upload log files to begin analysis
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- =========================================
+         SCRIPTS
+    ========================================= -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <!-- App Scripts -->
+    <script src="assets/js/script.js"></script>
+</body>
+</html>
+
